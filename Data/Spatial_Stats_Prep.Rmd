@@ -1,0 +1,176 @@
+---
+title: "Cluster Stats"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(tmap)
+library(tmaptools)
+library(sf)
+library(viridisLite)
+library(leaflet)
+library(spdep)
+```
+
+
+# Data File
+```{r}
+source("Data/cancer_df.R")
+
+
+```
+
+# Defining Polygons
+```{r}
+hsda2 <- 
+  hsda %>% 
+  filter(Cancer == "Breast",
+         Year == 2017,
+         Sex == "Females")
+
+get.ZeroPolicyOption()
+set.ZeroPolicyOption(TRUE)
+
+nb <-
+  poly2nb(hsda2, queen=TRUE)
+
+
+lw <-
+  nb2listw(nb, style="W", zero.policy=TRUE)
+```
+
+# Moran's I test MC simulations
+```{r}
+MC <- 
+  moran.mc(hsda2$ASIR, lw, nsim=599)
+
+```
+
+```{r}
+
+MC$statistic
+MC$p.value
+ 
+plot(MC, 
+     main="Moran's statistic", 
+     las=1,
+      ylab = "Density",
+     xlab = "")
+
+df <- 
+tibble(
+  I = MC$res
+)
+
+ggplot(df, aes(x = I)) +
+  geom_density(fill = "grey") +
+  geom_vline(xintercept = MC$statistic, col = "black", size = 2) +
+  labs(
+    title = "Simulated Moran's I values",
+    x = "Moran's I",
+     y = "Density"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+```
+
+# LISA (Local Moran's)
+```{r}
+lmoran <- 
+  localmoran(hsda2$ASIR, lw,
+           alternative = "greater")
+```
+
+```{r}
+summary(lmoran)
+
+# padronize the variable and save it to a new column
+hsda2$s_ASIR <- scale(hsda2$ASIR)  %>% as.vector()
+
+# create a spatially lagged variable and save it to a new column
+hsda2$lag_s_ASIR <- lag.listw(lw, hsda2$s_ASIR)
+
+# summary of variables, to inform the analysis
+summary(hsda2$s_ASIR)
+summary(hsda2$lag_s_ASIR)
+
+# moran scatterplot, in basic graphics (with identification of influential observations)
+x <- hsda2$s_ASIR
+y <- hsda2$lag_s_ASIR %>% as.vector()
+xx <- data.frame(x, y)
+
+moran.plot(x, lw)
+
+# moran sccaterplot, in ggplot 
+# (without identification of influential observations - which is possible but requires more effort)
+ggplot(xx, aes(x, y)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se = F) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') + 
+  geom_vline(xintercept = 0, linetype = 'dashed') 
+
+# create a new variable identifying the moran plot quadrant for each observation, dismissing the non-significant ones
+hsda2$quad_sig <- NA
+
+# high-high quadrant
+hsda2 <-
+hsda2 %>% 
+  mutate(quad_sig = case_when(
+    (s_ASIR >= 0 & lag_s_ASIR >= 0) & (lmoran[, 5] <= 0.05) ~ "high-high",
+    (s_ASIR <= 0 & lag_s_ASIR <= 0) & (lmoran[, 5] <= 0.05) ~ "low-low",
+    (s_ASIR >= 0 & lag_s_ASIR <= 0) & (lmoran[, 5] <= 0.05) ~ "high-high",
+    (s_ASIR <= 0 & lag_s_ASIR >= 0) & (lmoran[, 5] <= 0.05) ~ "high-high",
+    TRUE ~ "Not significant"
+  )) %>% 
+  mutate(quad_sig = as.factor(quad_sig))
+
+```
+
+ggplot
+
+```{r}
+# plotting the map
+hsda2 %>% 
+  st_drop_geometry() %>% 
+  ggplot(., aes(x = hsda2$s_ASIR, y = lag_s_ASIR, colour = quad_sig)) + 
+  geom_point() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') + 
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  labs(y = "Lagged ASIR",
+       x = "ASIR") +
+  coord_fixed(ratio = 1) + 
+    theme_bw(base_size = 14) +
+        theme(
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()
+        ) +
+  scale_colour_viridis_d()
+```
+
+```{r}
+tmap_mode("view")
+# plotting the map
+hsda2 %>% 
+  tm_shape() +
+  tm_polygons("quad_sig",
+              palette = "viridis")
+  
+```
+
+Datatable
+```{r}
+#Moran's Test 
+tibble(
+  Indicator = c("Moran's I", "p value"),
+  Value = c(
+    round(MC$statistic,4),
+    round(MC$p.value, 4))
+)
+```
+
