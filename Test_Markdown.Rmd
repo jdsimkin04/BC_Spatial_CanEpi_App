@@ -2,9 +2,7 @@
 title: "Test Markdown"
 author: "Jonathan Simkin"
 date: "12/04/2020"
-output:
-  html_document:
-    df_print: paged
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
