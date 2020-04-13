@@ -1,5 +1,7 @@
 # BC Spatial Cancer Epidemiology Shiny App
 
+<img src="https://github.com/jdsimkin04/BC_Spatial_CanEpi_App/blob/master/GIF_READ_ME.gif" width="100%">
+
 With this app, you can:
 
 * Visualize cancer rates across different BC Geographies with choropleth maps
