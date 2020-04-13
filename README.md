@@ -7,3 +7,5 @@ With this app, you can:
 
 This app uses **Fake Data** and is still **under development**. 
 
+App lives [here](https://jdsimkin04.shinyapps.io/bc_spatial_canepi_app/).
+
