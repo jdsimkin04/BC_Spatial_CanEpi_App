@@ -37,11 +37,21 @@ lha <-
   rename(REGION_ID = LHA_CD, REGION_Title = LHA_Title, AREA = LHA_Area,
          POP = LHA_Pop16, REGION_Name = LHA_Name)
 
-data_sets <-  list(ha, hsda, lha) #I've thrown the st dfs in a list
-data_sets2 <-  list(hsda, lha) #I've thrown the st dfs in a list
+chsa <- 
+st_read("CHSA_2018/CHSA_2018.shp") %>%
+  st_simplify(., dTolerance = 500) %>%
+  left_join(., cancer_df_chsa, by = "CHSA_Name") %>% 
+  mutate(region = "CHSA") %>% 
+  select(-c("LHA_CD", "LHA_Name",  "LHA_Title", "LHA_CD1997", "CHSA_UR_Cl",
+    "HSDA_CD", "HSDA_ID", "HSDA_Name",  "HSDA_Title", "HA_CD", "HA_ID", "HA_Name", "HA_Title")) %>%
+  rename(REGION_ID = CHSA_CD, REGION_Title = CHSA_Title, AREA = CHSA_Area,
+         POP = CHSA_Pop16, REGION_Name = CHSA_Name)
+
+data_sets <-  list(ha, hsda, lha, chsa)
+data_sets2 <-  list(hsda, lha, chsa) 
 
 cancers <- 
-  c("Lung", #These are the list of attributes I would like to choose from to plot
+  c("Lung",
     "Breast", 
     "Colorectal",
     "Prostate",
@@ -66,9 +76,9 @@ ui <- fluidPage(
       br(),
       br(),
       width = 2,
-      selectInput('dataset', 'Geographic level:', choices = c("Health Authority" = "1", "Health Service Delivery Area" = "2", "Local Health Area" = "3")), #Atm I have this as choose one dataframe or the other... ha or hsda
+      selectInput('dataset', 'Geographic level:', choices = c("Health Authority" = "1", "Health Service Delivery Area" = "2", "Local Health Area" = "3", "Community Health Service Area" = "4")), 
       selectInput("sex_var", "Sex", sex),
-      selectInput("cancer_var", "Cancer type", cancers), #Select which cancer to plot... atm the cancer is it's own column. Can pivot_longer to change the dataframes so they are a variable in a column as well if we want to go that approach.. I just haven't figured out how to dplyr::filter in the reactive part of server
+      selectInput("cancer_var", "Cancer type", cancers),
       sliderInput("year_var", "Year", min = 2014, max = 2017, value = 2017, 
                   animate = 
                     animationOptions(interval = 2000, loop = F)),
@@ -100,9 +110,9 @@ ui <- fluidPage(
         br(),
         br(),
         width = 3,
-        selectInput('dataset3', 'Geographic level:', choices = c("Health Service Delivery Area" = "1", "Local Health Area" = "2")), #Atm I have this as choose one dataframe or the other... ha or hsda
+        selectInput('dataset3', 'Geographic level:', choices = c("Health Service Delivery Area" = "1", "Local Health Area" = "2", "Community Health Service Area" = "3")), 
         selectInput("sex_var3", "Sex", sex),
-        selectInput("cancer_var3", "Cancer type", cancers), #Select which cancer to plot... atm the cancer is it's own column. Can pivot_longer to change the dataframes so they are a variable in a column as well if we want to go that approach.. I just haven't figured out how to dplyr::filter in the reactive part of server
+        selectInput("cancer_var3", "Cancer type", cancers), 
         sliderInput("year_var3", "Year", min = 2014, max = 2017, value = 2017, 
                     animate = 
                       animationOptions(interval = 2000, loop = F)),

@@ -17,7 +17,7 @@ library(kableExtra)
 
 server <- function(input, output, session) {
   
-  datasetInput <- reactive({ #Here I am picking the dataset from the list to then show in the table
+  datasetInput <- reactive({ 
     data_sets[[as.numeric(input$dataset)]] %>% 
       filter(Sex == input$sex_var,
              Cancer == input$cancer_var,
@@ -142,7 +142,7 @@ server <- function(input, output, session) {
                 ))
   })
   
-  datasetInput2 <- reactive({ #Here I am picking the dataset from the list to then show in the table
+  datasetInput2 <- reactive({ 
     data_sets[[as.numeric(input$dataset2)]] %>% 
       filter(Sex == input$sex_var2,
              Cancer == input$cancer_var2,
@@ -231,7 +231,7 @@ server <- function(input, output, session) {
 
         # plotting the map
     tm_shape(mymap2) +
-      tm_polygons("Cluster_Type", zindex = 401, #Map one of the cancers that are selected in selectInput
+      tm_polygons("Cluster_Type", zindex = 401, 
                   id = "REGION_Name",
                   title = "Cluster Type",
                   # style = "sd",
@@ -411,13 +411,12 @@ server <- function(input, output, session) {
     myplot2 <- datasetInput3()
     
     if((input$sex_var3 == "Males" & input$cancer_var3 %in% c("Cervix", "Breast"))){
-      
-    }
+
+          }
     
     if(input$sex_var3 == "Females" & input$cancer_var3 %in% c("Prostate")){
-      
-      
-    }
+
+          }
     
     if((input$sex_var3 == "Males" & !(input$cancer_var3 %in% c("Cervix", "Breast"))) | (input$sex_var3 == "Females" & !(input$cancer_var3 == "Prostate"))){ #if not the above
       

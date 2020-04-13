@@ -26,7 +26,7 @@ source("Data/cancer_df.R")
 # Defining Polygons
 ```{r}
 hsda2 <- 
-  hsda %>% 
+  chsa %>% 
   filter(Cancer == "Breast",
          Year == 2017,
          Sex == "Females")

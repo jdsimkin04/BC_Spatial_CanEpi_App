@@ -225,3 +225,77 @@ rm(
   cancer_df_females,
   cancer_df_males
 )
+
+#CHSA
+CHSA <-
+  st_read("CHSA_2018/CHSA_2018.shp") %>%
+  st_drop_geometry() %>% 
+  distinct(CHSA_Name) %$%
+  CHSA_Name
+
+cancer_df_males <-
+  tibble(
+    CHSA_Name = 
+      rep(CHSA, times = 5*4),
+    Sex = "Males",
+    ASIR = 
+      c(sample(50:100, 218*3, replace = T), rep(NA, 218*2),
+        sample(50:100, 218*3, replace = T), rep(NA, 218*2),
+        sample(50:100, 218*3, replace = T), rep(NA, 218*2),
+        sample(50:100, 218*3, replace = T), rep(NA, 218*2)),
+    Cancer = 
+      rep(
+        c(
+          rep("Lung", times = 218),
+          rep("Colorectal", times = 218),
+          rep("Prostate", times = 218),
+          rep("Cervix", times = 218),
+          rep("Breast", times = 218)
+        ),
+        4),
+    Year = c(
+      rep(2017, 218*5),
+      rep(2016, 218*5),
+      rep(2015, 218*5),
+      rep(2014, 218*5)
+    )
+  )
+
+cancer_df_females <-
+  tibble(
+    CHSA_Name = 
+      rep(CHSA, times = 5*4),
+    Sex = "Females",
+    ASIR = 
+      c(sample(50:100, 218*2, replace = T), rep(NA, 218*1),sample(50:100, 218*2, replace = T),
+        sample(50:100, 218*2, replace = T), rep(NA, 218*1),sample(50:100, 218*2, replace = T),
+        sample(50:100, 218*2, replace = T), rep(NA, 218*1),sample(50:100, 218*2, replace = T),
+        sample(50:100, 218*2, replace = T), rep(NA, 218*1),sample(50:100, 218*2, replace = T)),
+    Cancer = 
+      rep(
+        c(
+          rep("Lung", times = 218),
+          rep("Colorectal", times = 218),
+          rep("Prostate", times = 218),
+          rep("Cervix", times = 218),
+          rep("Breast", times = 218)
+        ),
+        4),
+    Year = c(
+      rep(2017, 218*5),
+      rep(2016, 218*5),
+      rep(2015, 218*5),
+      rep(2014, 218*5)
+    )
+  )
+
+cancer_df_chsa <-
+  rbind(
+    cancer_df_females,
+    cancer_df_males
+  )
+
+rm(
+  cancer_df_females,
+  cancer_df_males
+)
