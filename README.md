@@ -1,6 +1,6 @@
 # BC Spatial Cancer Epidemiology Shiny App
 
-<img src="https://github.com/jdsimkin04/BC_Spatial_CanEpi_App/blob/master/GIF_READ_ME.gif" width="100%">
+<img src="https://github.com/jdsimkin04/BC_Spatial_CanEpi_App/blob/master/GIF_READ_ME.gif" width="50%">
 
 With this app, you can:
 
