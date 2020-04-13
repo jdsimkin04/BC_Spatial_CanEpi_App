@@ -4,8 +4,8 @@
 
 With this app, you can:
 
-* Visualize cancer rates across different BC Geographies with choropleth maps
-* Test for spatial autocorrelation using Global and Local Moran's tests
+* Visualize cancer rates across different BC Geographies with choropleth maps using [tmap](https://github.com/mtennekes/tmap)
+* Test for spatial autocorrelation using Global and Local Moran's tests using [sf](https://github.com/r-spatial/sf) and [spdep](https://github.com/r-spatial/spdep).
 
 **Please Note**
 
