@@ -135,7 +135,7 @@ ui <- fluidPage(
         h4(strong("Spatial Statistics")),
         br(),
         fluidRow(
-          splitLayout(cellWidths = c("20%", "40%", "40%"), tableOutput("moran_table"), plotOutput("moran_plot"), plotOutput("lisa_plot")))
+          splitLayout(cellWidths = c("20%", "40%", "40%"), tableOutput("moran_table"), plotOutput("moran_plot"), plotlyOutput("lisa_plot")))
       )
     )
   )#,

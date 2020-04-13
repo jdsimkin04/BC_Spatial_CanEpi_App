@@ -11,16 +11,16 @@ library(tmap)
 library(tmaptools)
 library(sf)
 library(viridisLite)
+library(viridis)
 library(leaflet)
 library(spdep)
+library(plotly)
 ```
 
 
 # Data File
 ```{r}
 source("Data/cancer_df.R")
-
-
 ```
 
 # Defining Polygons
@@ -130,15 +130,19 @@ hsda2 %>%
   )) %>% 
   mutate(quad_sig = as.factor(quad_sig))
 
+hsda2_plot <- 
+hsda2 %>% 
+  st_drop_geometry()
 ```
 
 ggplot
 
 ```{r}
 # plotting the map
-hsda2 %>% 
-  st_drop_geometry() %>% 
-  ggplot(., aes(x = hsda2$s_ASIR, y = lag_s_ASIR, colour = quad_sig)) + 
+
+p <- 
+hsda2_plot %>% 
+  ggplot(., aes(x = hsda2$s_ASIR, y = lag_s_ASIR, colour = quad_sig, text = paste("Region Name: ", REGION_Name), text2 = ASIR, text3 = quad_sig)) + 
   geom_point() + 
   geom_hline(yintercept = 0, linetype = 'dashed') + 
   geom_vline(xintercept = 0, linetype = 'dashed') +
@@ -151,6 +155,32 @@ hsda2 %>%
           panel.grid.minor = element_blank()
         ) +
   scale_colour_viridis_d()
+
+ggplotly(p,
+         tooltip = c("text", "text2", "text3"))
+```
+
+plotly build
+```{r}
+
+legendtitle <- list(yref='paper', xref="paper", y=-0.3, x=0, text = "<b>Cluster Type</b>", showarrow = F, font = list(size = 14))
+
+plot_ly(data = hsda2_plot, x = ~s_ASIR, y = ~lag_s_ASIR, type = 'scatter', mode = 'markers',
+        text = ~REGION_Name, color = ~quad_sig,
+          hovertemplate = paste('<b>Region Name</b>: %{text}'),
+        colors = viridis_pal(option = "D")(4),
+        # size = 10,
+        marker = list(size = 10,
+                      line = list(color = 'black',
+                                         width = 1))
+        ) %>% 
+  layout(title = 'Styled Scatter',
+         yaxis = list(title = "<b>Lagged ASIR<b>"),
+         xaxis = list(title = "<b>ASIR<b>"),
+         legend = list(orientation = 'h', y = -0.3),
+         annotations = legendtitle)
+
+
 ```
 
 ```{r}
@@ -159,7 +189,7 @@ tmap_mode("view")
 hsda2 %>% 
   tm_shape() +
   tm_polygons("quad_sig",
-              palette = "viridis")
+              palette = viridis_pal(option = "D")(4))
   
 ```
 

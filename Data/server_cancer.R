@@ -236,7 +236,7 @@ server <- function(input, output, session) {
                   title = "Cluster Type",
                   # style = "sd",
                   alpha = 0.8,
-                  palette = "viridis",
+                  palette = viridis_pal(option = "D")(mymap2 %>% st_drop_geometry() %>% distinct(Cluster_Type) %>% nrow),
                   border.col = "White",
                   lwd = 0.5,
                   popup.vars=c("Rate per 100,000: " = "ASIR", "Population: " = "POP", "Cluster Type" = "Cluster_Type")
@@ -337,7 +337,7 @@ server <- function(input, output, session) {
                       id = "REGION_Name",
                       title = "Cluster Type",
                       # title = "Cancer",
-                      palette = "viridis",
+                      palette = viridis_pal(option = "D")(mymap2 %>% st_drop_geometry() %>% distinct(Cluster_Type) %>% nrow),
                       border.col = "White",
                       lwd = 0.5,
                       popup.vars=c("Rate per 100,000: " = "ASIR", "Population: " = "POP", "Cluster Type" = "Cluster_Type")
@@ -475,7 +475,7 @@ server <- function(input, output, session) {
     
   })
   
-  output$lisa_plot <- renderPlot({
+  output$lisa_plot <- renderPlotly({
     myplot2 <- datasetInput3()
     
     if((input$sex_var3 == "Males" & input$cancer_var3 %in% c("Cervix", "Breast"))){
@@ -520,25 +520,46 @@ server <- function(input, output, session) {
           TRUE ~ "Not significant"
         )) %>%
         mutate(Cluster_Type = as.factor(Cluster_Type))
-     
+      
+      legendtitle <- list(yref='paper', xref="paper", y=-0.3, x=0, text = "<b>Cluster Type</b>", showarrow = F, font = list(size = 14))
+      
+      # myplot2 %>% 
+      #   st_drop_geometry() %>% 
+      #   ggplot(., aes(x = s_ASIR, y = lag_s_ASIR, colour = Cluster_Type)) + 
+      #   geom_point() + 
+      #   geom_hline(yintercept = 0, linetype = 'dashed') + 
+      #   geom_vline(xintercept = 0, linetype = 'dashed') +
+      #   labs(
+      #     title = "Local Moran Scatterplot",
+      #     y = "Lagged ASIR",
+      #        x = "ASIR",
+      #     colour = "Cluster Type and\n Significance") +
+      #   coord_fixed(ratio = 1) + 
+      #   theme_bw(base_size = 14) +
+      #   theme(
+      #     panel.grid.major = element_blank(),
+      #     panel.grid.minor = element_blank()
+      #   ) +
+      #   scale_colour_viridis_d()
+      
+      myplot2_stdrop <- 
       myplot2 %>% 
-        st_drop_geometry() %>% 
-        ggplot(., aes(x = s_ASIR, y = lag_s_ASIR, colour = Cluster_Type)) + 
-        geom_point() + 
-        geom_hline(yintercept = 0, linetype = 'dashed') + 
-        geom_vline(xintercept = 0, linetype = 'dashed') +
-        labs(
-          title = "Local Moran Scatterplot",
-          y = "Lagged ASIR",
-             x = "ASIR",
-          colour = "Cluster Type and\n Significance") +
-        coord_fixed(ratio = 1) + 
-        theme_bw(base_size = 14) +
-        theme(
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()
-        ) +
-        scale_colour_viridis_d()
+        st_drop_geometry()
+      
+      plot_ly(data = myplot2_stdrop, x = ~s_ASIR, y = ~lag_s_ASIR, type = 'scatter', mode = 'markers',
+              text = ~REGION_Name, color = ~Cluster_Type,
+              hovertemplate = paste('<b>Region Name</b>: %{text}'),
+              colors = viridis_pal(option = "D")(myplot2 %>% st_drop_geometry() %>% distinct(Cluster_Type) %>% nrow),
+              # size = 10,
+              marker = list(size = 6,
+                            line = list(color = 'black',
+                                        width = 1))
+      ) %>% 
+        layout(title = 'Moran Scatterplot',
+               yaxis = list(title = "<b>Lagged ASIR<b>"),
+               xaxis = list(title = "<b>ASIR<b>"),
+               legend = list(orientation = 'h', y = -0.3),
+               annotations = legendtitle)
     }
     
     

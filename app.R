@@ -10,6 +10,8 @@ library(DT)
 library(spdep)
 library(knitr)
 library(kableExtra)
+library(viridis)
+library(plotly)
 # library(crosstalk)
 
 source("Data/cancer_df.R")
