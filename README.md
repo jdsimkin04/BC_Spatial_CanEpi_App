@@ -6,6 +6,7 @@ With this app, you can:
 * Test for spatial autocorrelation using Global and Local Moran's tests
 
 **Please Note**
+
 This app uses **FAKE DATA** and is still **under development**. 
 
 App lives [here](https://jdsimkin04.shinyapps.io/bc_spatial_canepi_app/).
