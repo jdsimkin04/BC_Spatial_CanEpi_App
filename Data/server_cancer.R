@@ -402,7 +402,7 @@ server <- function(input, output, session) {
         kable(., 
               format = "html",
               caption = "Global Moran's Test (Monte Carlo Simulation test)") %>%
-        kable_styling("striped", full_width = F)
+        kable_styling("striped", full_width = T)
 
     }
   }
@@ -446,12 +446,12 @@ server <- function(input, output, session) {
       
       MC_result2 <- 
         if(MC$p.value < 0.05 & MC$statistic > 0){
-          " and ASIRs are clustered."
+          "\nand ASIRs are clustered."
         }
       else if(MC$p.value < 0.05 & MC$statistic < 0){
-        " and ASIRs are dispersed."
+        "\nand ASIRs are dispersed."
       }
-      else{" and ASIRs are distributed at random."}
+      else{"\nand ASIRs are distributed at random."}
           
       ggplot(df, aes(x = I)) +
         geom_density(fill = "grey") +
