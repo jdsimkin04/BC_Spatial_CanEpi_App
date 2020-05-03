@@ -181,6 +181,114 @@ server <- function(input, output, session) {
   # 
   # })
     
+  
+  # ASIR Map
+  datasetInput3 <- reactive({ #Here I am picking the dataset from the list to then show in the table
+    data_sets2[[as.numeric(input$dataset3)]] %>% 
+      filter(Sex == input$sex_var3,
+             Cancer == input$cancer_var3,
+             Year == input$year_var3
+      )
+  })
+  
+  
+  output$asir_map <- renderTmap({ 
+    
+    mymap2 <-  data_sets2[[1]] %>%
+      filter(Sex == sex[1],
+             Cancer == cancers[1],
+             Year == year[1]
+      )
+    
+    tm_shape(mymap2) + 
+      tm_polygons("ASIR", zindex = 401,
+                  id = "REGION_Name",
+                  title = "ASIR per 100,000",
+                  style = "sd",
+                  alpha = 0.8,
+                  palette = "viridis",
+                  border.col = "White",
+                  lwd = 0.5,
+                  popup.vars=c("Rate per 100,000: " = "ASIR", "Population: " = "POP")
+      ) +
+      tm_layout(outer.margins = 0) +
+      tm_view(
+        set.view = c(-127, 55, 4.5))
+  })
+
+#update map
+
+  #update map
+  
+  observe({
+    
+    mymap2 <- datasetInput3()
+    
+    if((input$sex_var3 == "Males" & input$cancer_var3 %in% c("Cervix", "Breast"))){
+      tmapProxy("asir_map", session, {
+        tm_remove_layer(401) +
+          tm_shape(mymap2) +
+          tm_polygons(zindex = 401,
+                      title = "ASIR per 100,000",
+                      style = "sd",
+                      alpha = 0.8,
+                      id = "REGION_Name",
+                      # title = "Cancer",
+                      # palette = "viridis",
+                      border.col = "White",
+                      lwd = 0.5,
+                      popup.vars=c("Rate per 100,000: " = "ASIR", "Population: " = "POP")
+          ) +
+          tm_layout(outer.margins = 0) +
+          tm_view(
+            set.view = c(-127, 55, 4.5))
+        
+      })
+    }
+    
+    if(input$sex_var3 == "Females" & input$cancer_var3 %in% c("Prostate")){
+      tmapProxy("asir_map", session, {
+        tm_remove_layer(401) +
+          tm_shape(mymap2) +
+          tm_polygons(zindex = 401,
+                      id = "REGION_Name",
+                      title = "ASIR per 100,000",
+                      style = "sd",
+                      alpha = 0.8,
+                      # title = "Cancer",
+                      # palette = "viridis",
+                      border.col = "White",
+                      lwd = 0.5,
+                      popup.vars=c("Rate per 100,000: " = "ASIR", "Population: " = "POP")
+          ) +
+          tm_layout(outer.margins = 0) +
+          tm_view(
+            set.view = c(-127, 55, 4.5))
+        
+      })
+    }
+    
+    if((input$sex_var3 == "Males" & !(input$cancer_var3 %in% c("Cervix", "Breast"))) | (input$sex_var3 == "Females" & !(input$cancer_var3 == "Prostate"))){ #if not the above
+      tmapProxy("asir_map", session, {
+        tm_remove_layer(401) +
+          tm_shape(mymap2) +
+          tm_polygons("ASIR", zindex = 401,
+                      id = "REGION_Name",
+                      title = "ASIR per 100,000",
+                      # title = "Cancer",
+                      palette = "viridis",
+                      border.col = "White",
+                      lwd = 0.5,
+                      popup.vars=c("Rate per 100,000: " = "ASIR", "Population: " = "POP")
+          ) +
+          tm_layout(outer.margins = 0) +
+          tm_view(
+            set.view = c(-127, 55, 4.5))
+        
+      })
+    }
+  })
+  
   # Cluster map
   datasetInput3 <- reactive({ #Here I am picking the dataset from the list to then show in the table
     data_sets2[[as.numeric(input$dataset3)]] %>% 
